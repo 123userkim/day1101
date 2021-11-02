@@ -1,4 +1,8 @@
-package com.sist.echo;
+//코드를 복사하여 
+//UDP방식으로 수정 해 봅니다.
+
+
+package com.sist.echo01;
 
 import javax.swing.JButton;
 
@@ -14,7 +18,7 @@ import java.net.Socket;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-public class TCPChatClient extends JFrame implements ActionListener {
+public class TCPChatClient extends JFrame implements ActionListener,Runnable {
 	
 	//대화내용을 출력할 텍스트에리어를 맴버변수로 만들어요
 	JTextArea jta;
@@ -73,37 +77,8 @@ public class TCPChatClient extends JFrame implements ActionListener {
 			// TODO: handle exception
 		}
 		
-		
-		//서버가 보내오는 데이터를 계속하여 받기 위한 쓰레드 클래스를 만들어 봅시다.
-		//클래스 안에 있는 클래스를 inner클래스라 하고 
-		//바깥에 있는 클래스는 outter클래스라고 합니다.
-		//inner클래스는 마치 outter클래스 맴버처럼 동작해요
-		//outter클래스의 맴버에 자유롭게 접근할 수 있어요.
-		class ClientThread extends Thread{
-			byte []data = new byte[100];
-			public void run() {
-				while(true) {
-					try {
-						//서버가 보내온 데이터를 수신합니다.
-						is.read(data);
-						
-						//수신한 데이터을 문자열로 만들어요
-						String msg = new String(data);
-						
-						//수신한 문자열을 텍스트에리어에 추가합니다.
-						jta.append(msg.trim()+"\n");
-						
-					}catch (Exception e) {
-						System.out.println("예외발생:"+e.getMessage());
-					}
-					
-				}//end run
-			}
-		}//end innerClass
-		
-		//서버로부터 계속하여 수신된 메세지를 받기위한 쓰레드 객체를 생성하고 가동한다.
-		ClientThread ct = new ClientThread();
-		ct.start();
+		Thread t = new Thread(this);
+		t.start();
 		
 	}//end  생성자
 	
@@ -111,6 +86,8 @@ public class TCPChatClient extends JFrame implements ActionListener {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		new TCPChatClient();
+		//main start
+		//생성자 start
 	}
 
 
@@ -132,6 +109,29 @@ public class TCPChatClient extends JFrame implements ActionListener {
 		}
 		
 	}
+
+
+	//서버로 부터 수신된 데이터를 계속 받도록 합니다.
+	@Override
+	public void run() {
+		// TODO Auto-generated method stub
+		
+		byte []data = new byte[100];
+		while(true) {
+			try {
+				is.read(data);
+				String msg = new String(data);
+				msg = msg.trim();
+				jta.append(msg+"\n");
+				
+			}catch (Exception e) {
+				// TODO: handle exception
+			}//end catch
+			
+		}//end while
+	}//end run
+	
+	
 }
 
 
